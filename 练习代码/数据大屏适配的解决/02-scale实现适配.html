@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      width: 100vw;
+      height: 100vh;
+      background: url(./bg.png) no-repeat;
+      background-size: cover;
+    }
+
+    .box {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform-origin: left top;
+      width: 1920px;
+      height: 1080px;
+      background-color: pink;
+      /* 父元素缩放，子元素跟着缩放 */
+      /* transform: scale(0.5); */
+    }
+
+    .top {
+      margin-left: 50px;
+      margin-bottom: 100px;
+      width: 100px;
+      height: 100px;
+      background-color: skyblue;
+    }
+
+    .bottom {
+      margin-left: 50px;
+      width: 100px;
+      height: 100px;
+      background-color: orange;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <!-- 数据展示的区域 -->
+    <div class="box">
+      <div class="top">我是祖国的</div>
+      <div class="bottom">一朵小小的花骨朵</div>
+    </div>
+  </div>
+
+</body>
+
+<script>
+  /*
+    scale适配屏幕的原理是选则一个基准点，然后根据基准点来缩放页面；
+    但如果我们只是长度或者宽度一个方向变化了，这种缩放就会出现问题；
+
+    老师说的scale实现适配的步骤是这样的：
+    1. 先把盒子的缩放基准点放在盒子的左上角
+    2. 然后通过定位把盒子的左上角定位到屏幕的中心，这样对于任何屏幕，我们都能保证永远按照屏幕的中心点进行缩放（因为缩放基准点与屏幕的中心点重合）
+    3. 然后计算出缩放的比例，按照比例对盒子进行缩放
+    4. 最后把盒子重新拉回左上角，这样就完成了适配
+  */
+
+  //  控制数据大屏的缩放
+  let box = document.querySelector('.box')
+
+  // 一上来先缩放一次，并且把盒子拽回左上角
+  box.style.transform = `scale(${getScale()}) translate(-50%,-50%)`
+
+  // 计算缩放的比例
+  function getScale(w = 1920, h = 1080) {
+    // 当前视口宽度除以设计稿宽度就是缩放的比例
+    // 比如当前视口宽为3840，设计稿宽为1920，那么缩放比例就是2
+    const ww = window.innerWidth / w
+    const wh = window.innerHeight / h
+    // 取宽和高的最小值作为缩放比例
+    /* 取最小值，可以保证内容在任何屏幕下都不会超出屏幕边界，用户总能看到完整内容。这是“缩放适配”最核心的原则。如果你取最大值，内容就有可能被裁剪，用户体验会变差。 */
+    return Math.min(ww, wh)
+  }
+
+  // 监听窗口的缩放
+  window.onresize = () => {
+    // 重新计算缩放比例
+    const scale = getScale()
+    // 重新缩放
+    box.style.transform = `scale(${scale}) translate(-50%,-50%)`
+  }
+
+  /*
+    scale实现适配的优点是不需要手动计算，同时支持echarts的文字，
+    但是为了保持原来的宽高比（16:9，也就是1920:1080），scale缩放时容易有留白
+  */
+</script>
+
+</html>
